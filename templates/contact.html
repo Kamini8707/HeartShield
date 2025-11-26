@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Feedback | HeartShield{% endblock %}
+{% block content %}
+<div class="container page-content">
+    <h1>Feedback & Resources</h1>
+    <section class="card">
+        <h2>Give Feedback</h2>
+        <p>Found a bug or have a suggestion? Let us know!</p>
+        <form id="feedback-form">
+            <div class="form-group">
+                <label for="name">Your Name</label>
+                <input type="text" id="name" name="name" value="{% if current_user.is_authenticated %}{{ current_user.username }}{% endif %}">
+            </div>
+            <div class="form-group">
+                <label for="review">Your Review</label>
+                <textarea id="review" name="review" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="cta-button">Submit Feedback</button>
+            <div id="feedback-status" class="status-message" style="display: none;"></div>
+        </form>
+    </section>
+</div>
+{% endblock %}

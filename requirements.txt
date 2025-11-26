@@ -1,0 +1,11 @@
+Flask
+pandas
+numpy
+scikit-learn
+xgboost
+joblib
+pytesseract
+pdf2image
+Pillow
+opencv-python-headless
+gunicorn  # Good for running the app

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Login | HeartShield{% endblock %}
+{% block content %}
+<div class="container page-content" style="max-width: 500px;">
+    <div class="card">
+        <h2 style="text-align: center; color: var(--primary-color);">Login</h2>
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="cta-button large" style="width: 100%; margin-top: 10px;">Login</button>
+        </form>
+        
+        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+        
+        <div style="text-align: center;">
+            <p style="color: black;">Don't have an account? <a href="{{ url_for('register') }}">Register Here</a></p>
+            <p style="margin: 15px 0;">Or</p>
+            <a href="{{ url_for('guest_analyser') }}" class="cta-button secondary" style="padding: 10px 20px;">Continue as Guest</a>
+            <p class="small-text" style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+                (Guest Mode: Data is not saved. Access restricted to Analyser.)
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

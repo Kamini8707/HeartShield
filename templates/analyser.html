@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}Analyser | HeartShield{% endblock %}
+{% block content %}
+
+    {% if current_user.is_authenticated %}
+<script>
+  // Use a single global object on window to avoid redeclaring block-scoped variables
+  window.USER_PROFILE = window.USER_PROFILE || {};
+
+  Object.assign(window.USER_PROFILE, {
+    age: '{{ user_data.age or "" }}',
+    gender: '{{ user_data.gender or "" }}',
+    height: '{{ user_data.height or "" }}',
+    weight: '{{ user_data.weight or "" }}'
+  });
+</script>
+{% else %}
+<script>
+  // Ensure global exists (no redeclare)
+  window.USER_PROFILE = window.USER_PROFILE || {};
+</script>
+{% endif %}
+
+
+    <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <div class="spinner" style="border: 8px solid #f3f3f3; border-top: 8px solid #007bff; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+        <h3 id="loading-quote" style="color: var(--secondary-color); max-width: 80%; font-family: 'Cedarville Cursive', cursive; font-size: 1.5rem;">Loading...</h3>
+    </div>
+    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+
+    <div class="container page-content">
+        <h1>Heart Disease Analyser</h1>
+        {% if not current_user.is_authenticated %}
+            <div class="status-message status-warning">Guest Mode: History not saved. <a href="{{ url_for('login') }}">Login</a> to save.</div>
+        {% endif %}
+
+        <!-- Upload Section -->
+        <section class="card analyser-section">
+            <h2>1. Upload Medical Report (Optional)</h2>
+            <div class="form-group">
+                <label>Upload PDF or Image:</label>
+                <input type="file" id="report-file" accept=".pdf,.jpg,.jpeg,.png">
+            </div>
+
+            <div id="file-preview-container" style="display: none; margin: 15px 0; border: 1px solid #ddd; padding: 10px; border-radius: 8px; position: relative;">
+
+                <div class="zoom-toolbar" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; background: #f8f9fa; padding: 8px; border-radius: 5px;">
+                    <button type="button" id="zoom-out-btn" class="cta-button secondary" style="padding: 5px 12px;">−</button>
+                    <span id="zoom-level" style="align-self: center; font-weight: bold;">100%</span>
+                    <button type="button" id="zoom-in-btn" class="cta-button secondary" style="padding: 5px 12px;">+</button>
+                    <button type="button" id="remove-file-btn" class="cta-button secondary" style="background: #dc3545; padding: 5px 12px; margin-left: 10px;">Remove</button>
+                </div>
+
+                <div style="overflow: auto; max-height: 500px; border: 1px solid #eee; background: #111; padding:10px;">
+                    <div id="preview-content" style="transition: transform 0.2s ease; transform-origin: top center; display:flex; justify-content:center;">
+                        <!-- default demo image (local file uploaded with the project) -->
+                        <img id="demo-image" src="/mnt/data/Screenshot 2025-11-25 182053.png" alt="demo" style="max-width:100%; display:none;" />
+                        <object id="pdf-object" data="" type="application/pdf" width="100%" height="500px" style="display:none;"></object>
+                        <img id="preview-img" src="" alt="preview" style="max-width:100%; display:none;" />
+                    </div>
+                </div>
+            </div>
+
+            <button id="upload-btn" class="cta-button">Upload and Extract Data</button>
+            <div id="upload-status" class="status-message" style="display: none;"></div>
+        </section>
+
+        <!-- Manual form -->
+        <section class="card analyser-section">
+            <h2>2. Patient Data</h2>
+            <form id="manual-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Age</label><input type="number" id="age" name="age" required></div>
+                    <div class="form-group"><label>Gender</label><select id="gender" name="gender" required><option value="">Select...</option><option value="male">Male</option><option value="female">Female</option></select></div>
+                    <div class="form-group"><label>Height (cm)</label><input type="number" id="height" name="height" required></div>
+                    <div class="form-group"><label>Weight (kg)</label><input type="number" step="0.1" id="weight" name="weight" required></div>
+                    <div class="form-group"><label>Systolic BP</label><input type="number" id="ap_hi" name="ap_hi" required></div>
+                    <div class="form-group"><label>Diastolic BP</label><input type="number" id="ap_lo" name="ap_lo" required></div>
+                    <div class="form-group"><label>Cholesterol</label><input type="number" id="cholesterol" name="cholesterol" required></div>
+                    <div class="form-group"><label>Glucose</label><input type="number" id="glucose" name="glucose" required></div>
+                    <div class="form-group"><label>Smoke?</label><select id="smoke" name="smoke" required><option value="">Select...</option><option value="no">No</option><option value="yes">Yes</option></select></div>
+                    <div class="form-group"><label>Alcohol?</label><select id="alco" name="alco" required><option value="">Select...</option><option value="no">No</option><option value="yes">Yes</option></select></div>
+                    <div class="form-group"><label>Active?</label><select id="active" name="active" required><option value="">Select...</option><option value="no">No</option><option value="yes">Yes</option></select></div>
+                </div>
+                <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" id="predict-btn" class="cta-button large" style="flex:1;">Analyse Risk</button>
+                    <button type="button" id="clear-btn" class="cta-button secondary">Clear All</button>
+                </div>
+            </form>
+
+            <!-- Edit profile quick link for logged in users -->
+            {% if current_user.is_authenticated %}
+            <div style="margin-top:12px; text-align:right;">
+                <button id="edit-profile-btn" class="cta-button secondary">Edit Profile</button>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Results & Recommendations -->
+        <section id="results-section" class="card" style="display: none;">
+            <h2>Analysis Result</h2>
+            <div id="result-text"></div>
+            
+
+            <div id="hospital-section" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                <h3 style="color: #dc3545;">Recommended Action</h3>
+                <p>Your results indicate a risk. We recommend consulting a specialist.</p>
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+                    <a id="find-hospitals-btn" href="#" target="_blank" class="cta-button" style="background-color: #dc3545;">Find Nearby Hospitals</a>
+                    <a href="https://www.practo.com/consult" target="_blank" class="cta-button" style="background-color: #007bff;">Practo</a>
+                    <a href="https://www.medibuddy.in/" target="_blank" class="cta-button" style="background-color: #00bcd4;">MediBuddy</a>
+                    <a href="https://www.lybrate.com/online-consultation" target="_blank" class="cta-button" style="background-color: #ff9800;">Lybrate</a>
+                </div>
+                <div style="margin-top: 25px; text-align: center; border-top: 1px dashed #ccc; padding-top: 15px;">
+                    <p>Was this helpful? Please help us improve.</p>
+                    <a href="{{ url_for('contact') }}" class="cta-button secondary">Give Feedback</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- History -->
+        <section class="card analyser-section" style="margin-top:20px;">
+            <h2>Your Recent Analyses</h2>
+            <div id="history-container">Loading history...</div>
+        </section>
+
+        <!-- Profile modal (simple) -->
+        <div id="profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; justify-content:center; align-items:center;">
+            <div style="background:#fff; padding:20px; border-radius:8px; width:90%; max-width:520px;">
+                <h3>Edit Profile</h3>
+                <form id="profile-form">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <input name="name" id="pf-name" placeholder="Full name" />
+                        <input name="age" id="pf-age" type="number" placeholder="Age" />
+                        <select name="gender" id="pf-gender"><option value="">Gender</option><option value="male">Male</option><option value="female">Female</option></select>
+                        <input name="height" id="pf-height" type="number" placeholder="Height (cm)" />
+                        <input name="weight" id="pf-weight" type="number" step="0.1" placeholder="Weight (kg)" />
+                        <input name="blood_group" id="pf-blood" placeholder="Blood group" />
+                    </div>
+                    <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
+                        <button type="button" id="pf-cancel" class="cta-button secondary">Cancel</button>
+                        <button type="submit" class="cta-button">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Chart.js CDN (used for a small visual summary) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+    // --- Autofill fields from USER_PROFILE (A) ---
+    function autofillProfile() {
+        try {
+            if (USER_PROFILE && Object.keys(USER_PROFILE).length) {
+                if (USER_PROFILE.age) document.getElementById('age').value = USER_PROFILE.age;
+                if (USER_PROFILE.gender) document.getElementById('gender').value = USER_PROFILE.gender.toLowerCase();
+                if (USER_PROFILE.height) document.getElementById('height').value = USER_PROFILE.height;
+                if (USER_PROFILE.weight) document.getElementById('weight').value = USER_PROFILE.weight;
+            }
+        } catch(e) { console.warn('Autofill error', e); }
+    }
+
+    // --- File preview + zoom (E) ---
+    const reportFile = document.getElementById('report-file');
+    const previewContainer = document.getElementById('file-preview-container');
+    const previewImg = document.getElementById('preview-img');
+    const previewPdf = document.getElementById('pdf-object');
+    const demoImage = document.getElementById('demo-image');
+    const previewContent = document.getElementById('preview-content');
+    let scale = 1;
+
+    document.getElementById('zoom-in-btn').addEventListener('click', ()=>{ scale = Math.min(3, scale+0.1); updateZoom(); });
+    document.getElementById('zoom-out-btn').addEventListener('click', ()=>{ scale = Math.max(0.3, scale-0.1); updateZoom(); });
+    document.getElementById('remove-file-btn').addEventListener('click', ()=>{ reportFile.value = ''; previewContainer.style.display = 'none'; previewImg.style.display = 'none'; previewPdf.style.display = 'none'; demoImage.style.display='none'; });
+
+    function updateZoom(){ document.getElementById('zoom-level').innerText = Math.round(scale*100)+'%'; previewImg.style.transform = `scale(${scale})`; demoImage.style.transform = `scale(${scale})`; previewPdf.style.transform = `scale(${scale})`; }
+
+    reportFile.addEventListener('change', (e)=>{
+        const f = e.target.files[0];
+        if (!f) return;
+        previewContainer.style.display = 'block';
+        scale = 1; updateZoom();
+        const url = URL.createObjectURL(f);
+        if (f.type === 'application/pdf'){
+            previewPdf.data = url; previewPdf.style.display = 'block'; previewImg.style.display = 'none'; demoImage.style.display='none';
+        } else {
+            previewImg.src = url; previewImg.style.display = 'block'; previewPdf.style.display = 'none'; demoImage.style.display='none';
+        }
+    });
+
+    // --- Upload file to server and extract (C) ---
+    document.getElementById('upload-btn').addEventListener('click', async ()=>{
+        const f = reportFile.files[0];
+        if (!f) { showStatus('Please select a file first', true); return; }
+        showLoader(true,'Extracting text from file...');
+        const fd = new FormData(); fd.append('file', f);
+        try {
+            const res = await fetch('/extract', { method:'POST', body:fd });
+            const j = await res.json();
+            if (!res.ok) throw new Error(j.error || 'Extraction failed');
+            // autofill returned fields
+            if (j.age) document.getElementById('age').value = j.age;
+            if (j.gender) document.getElementById('gender').value = j.gender.toLowerCase();
+            if (j.height) document.getElementById('height').value = j.height;
+            if (j.weight) document.getElementById('weight').value = j.weight;
+            if (j.ap_hi) document.getElementById('ap_hi').value = j.ap_hi;
+            if (j.ap_lo) document.getElementById('ap_lo').value = j.ap_lo;
+            if (j.cholesterol) document.getElementById('cholesterol').value = j.cholesterol;
+            if (j.glucose) document.getElementById('glucose').value = j.glucose;
+            showStatus('Extraction complete', false);
+        } catch(err){ console.error(err); showStatus('Extraction error: '+err.message, true); }
+        showLoader(false);
+    });
+
+    function showLoader(show,msg){ document.getElementById('loading-overlay').style.display = show? 'flex':'none'; if(msg) document.getElementById('loading-quote').innerText = msg; }
+    function showStatus(msg,isErr){ const el = document.getElementById('upload-status'); el.style.display='block'; el.innerText = msg; el.style.color = isErr? '#dc3545':'#007bff'; setTimeout(()=>el.style.display='none',5000); }
+
+    // --- Predict (send to /predict) and show chart (B & D) ---
+    document.getElementById('manual-form').addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const payload = {};
+        new FormData(e.target).forEach((v,k)=>payload[k]=v);
+        // transform gender value
+        if (payload.gender) payload.gender = payload.gender.toLowerCase();
+        showLoader(true,'Analysing risk...');
+        try{
+            const res = await fetch('/predict',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+            const j = await res.json();
+            if (!res.ok) throw new Error(j.error || 'Prediction failed');
+            showResult(j.prediction, j.probability);
+            // reload history
+            loadHistory();
+        }catch(err){ console.error(err); alert('Prediction error: '+err.message); }
+        showLoader(false);
+    });
+
+    function showResult(pred,prob){
+        document.getElementById('results-section').style.display='block';
+        const txt = pred==1? `High risk (${prob}%)` : `Low risk (${prob}%)`;
+        document.getElementById('result-text').innerHTML = `<h3>Result: ${txt}</h3>`;
+        // show hospital section for high risk
+        document.getElementById('hospital-section').style.display = pred==1? 'block':'none';
+        
+    }
+
+    
+
+    // --- History (D) ---
+    async function loadHistory(){
+        const container = document.getElementById('history-container');
+        try{
+            const res = await fetch('/api/history'); // backend optional endpoint
+            if (!res.ok) { container.innerHTML = 'No history available.'; return; }
+            const arr = await res.json();
+            if (!arr.length) { container.innerHTML = 'No analyses yet.'; return; }
+            const rows = arr.map(r=>`<tr><td>${r.date_posted}</td><td>${r.age}</td><td>${r.ap_hi}/${r.ap_lo}</td><td>${r.probability}%</td><td>${r.prediction==1?'<strong style="color:#dc3545">High</strong>':'Low'}</td></tr>`).join('');
+            container.innerHTML = `<table style="width:100%; border-collapse:collapse;"><thead><tr style="background:#f1f1f1"><th>Date</th><th>Age</th><th>BP</th><th>Probability</th><th>Risk</th></tr></thead><tbody>${rows}</tbody></table>`;
+        }catch(e){ console.warn(e); document.getElementById('history-container').innerHTML = 'Could not load history.'; }
+    }
+
+    // --- Edit profile (B) ---
+    const editBtn = document.getElementById('edit-profile-btn');
+    const modal = document.getElementById('profile-modal');
+    if (editBtn) editBtn.addEventListener('click', ()=>{
+        // prefill
+        document.getElementById('pf-name').value = '{{ current_user.name or "" }}';
+        document.getElementById('pf-age').value = '{{ current_user.age or "" }}';
+        document.getElementById('pf-gender').value = '{{ current_user.gender or "" }}';
+        document.getElementById('pf-height').value = '{{ current_user.height or "" }}';
+        document.getElementById('pf-weight').value = '{{ current_user.weight or "" }}';
+        document.getElementById('pf-blood').value = '{{ current_user.blood_group or "" }}';
+        modal.style.display='flex';
+    });
+    document.getElementById('pf-cancel').addEventListener('click', ()=> modal.style.display='none');
+
+    document.getElementById('profile-form').addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const fd = new FormData();
+        new FormData(e.target).forEach((v,k)=>fd.append(k,v));
+        // use the existing /profile route which accepts form-data
+        try{
+            const res = await fetch('/profile', {method:'POST', body:fd});
+            if (!res.ok) throw new Error('Profile save failed');
+            alert('Profile updated'); modal.style.display='none';
+            // refresh page to pick up changes
+            window.location.reload();
+        }catch(err){ alert('Error: '+err.message); }
+    });
+
+    // --- Utilities & init ---
+    document.getElementById('clear-btn').addEventListener('click', ()=>{ document.getElementById('manual-form').reset(); });
+    window.addEventListener('load', ()=>{ autofillProfile(); loadHistory(); });
+    </script>
+
+{% endblock %}

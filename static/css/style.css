@@ -1,0 +1,353 @@
+/* --- Global Styles & Variables --- */
+:root {
+    --primary-color: #007bff;   /* Medical Blue */
+    --secondary-color: #0a4a8f; /* Darker Blue */
+    --accent-color: #70cfb8;    /* Mint Green */
+    --light-gray: #f4f7f6;
+    --dark-text: #333;
+    --light-text: #fff;
+    --danger-color: #dc3545;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding-top: 70px; /* Offset for fixed header */
+    background-color: #c9deed; /* Very light blue background */
+    color: var(--dark-text);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    /* background-color: aqua; */
+    /* height:100px */
+}
+
+/* --- Header & Navigation --- */
+header {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-text);
+}
+.logo-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+.logo span {
+    color: var(--primary-color);
+}
+
+header ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+header li {
+    margin-left: 20px;
+}
+
+header a {
+    text-decoration: none;
+    color: var(--dark-text);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+header a:hover {
+    color: var(--primary-color);
+}
+
+/* --- Buttons --- */
+.cta-button {
+    background-color: var(--primary-color);
+    color: var(--light-text) !important;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cta-button.large {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+}
+
+.cta-button.secondary {
+    background-color: #6c757d;
+}
+.cta-button.secondary:hover {
+    background-color: #5a6268;
+}
+
+/* --- Hero Section --- */
+.hero {
+    /* Ensure you have this image in static/images/ */
+    background:  url('../images/hero-backgroundfinal.jpg');
+    background-size: cover;
+    background-position: auto;
+    text-align: center;
+    padding: 100px 20px;
+    /* margin-bottom: 40px; */
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #222;
+}
+
+.hero p {
+    font-size: 1.3rem;
+    font-weight: 300;
+    margin-bottom: 30px;
+    color: #444;
+}
+
+/* --- Cards & Layout --- */
+.page-content {
+    padding: 40px 0;
+}
+
+.card {
+    background-color: #ffffff;
+    border: 1px solid #eee;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.info-section h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--secondary-color);
+}
+
+/* --- Forms --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* --- Status Messages --- */
+.status-message {
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+    font-weight: 500;
+    text-align: center;
+}
+.status-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.status-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.status-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.status-loading { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+
+.disclaimer {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+/* --- Loading Overlay --- */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid var(--primary-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 25px;
+}
+
+#loading-quote {
+    font-family: 'Cedarville Cursive', cursive;
+    font-size: 1.8rem;
+    color: var(--secondary-color);
+    max-width: 600px;
+    padding: 0 20px;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- Hospital Section --- */
+#hospital-section {
+    animation: fadeIn 0.6s ease-out;
+    text-align: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Footer --- */
+footer {
+    background-color: #343a40;
+    color: #ccc;
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 40px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    header nav {
+        flex-direction: column;
+        height: auto;
+        padding: 15px 0;
+    }
+    header ul {
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    header li {
+        margin: 5px 10px;
+    }
+    body {
+        padding-top: 120px;
+    }
+    .hero h1 { font-size: 2rem; }
+}
+/* Dropdown & Nav Pic */
+.dropdown { position: relative; display: inline-block; }
+.dropbtn { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.nav-profile-pic { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-color); }
+.dropdown-content { display: none; position: absolute; right: 0; background-color: #fff; min-width: 180px; box-shadow: 0px 8px 16px rgba(0,0,0,0.2); z-index: 1; border-radius: 8px; }
+.dropdown-content a { color: black; padding: 12px 16px; text-decoration: none; display: block; }
+.dropdown:hover .dropdown-content { display: block; }
+
+/* Table */
+table th { background-color: var(--primary-color); color: white; padding: 10px; }
+table td { padding: 10px; border-bottom: 1px solid #eee; }
+table tr:hover { background-color: #f1f1f1; }
+
+.card {
+    background-size: cover;       /* Ensures image covers the whole card */
+    background-position: center;  /* Centers the image */
+    background-repeat: no-repeat; /* Prevents tiling */
+    color: white;                 /* Changes text to white for better contrast */
+    padding: 20px;                /* Adds space inside the card */
+    border-radius: 8px;           /* Optional: rounds the corners */
+}
+
+/* 1. Risk Card Background */
+.card.risk {
+    /* The linear-gradient adds a dark tint so text is readable */
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../images/risk2.jpg');
+}
+
+/* 2. Prevention Card Background */
+.card.prevention {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../images/protective2.jpg');
+}
+
+/* 3. Decisions Card Background */
+.card.decisions {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../images/doctor1.jpg');
+}

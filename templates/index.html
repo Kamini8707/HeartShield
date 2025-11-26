@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Home | HeartShield{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1 style="color: white;">
+        Welcome to <span style="color: rgb(0, 0, 0); font-weight: bold;">Heart</span><span style="color: #4169E1; font-weight: bold;">Shield</span>
+        </h1>
+       <p style="color: pink; font-weight: bold;">
+        Using AI to provide early insights into cardiovascular health.
+    </p>
+        <a href="{{ url_for('analyser') }}" class="cta-button large">Go to Analyser</a>
+    </div>
+</section>
+
+<section class="container info-section">
+    <h2>User Reviews & Insights</h2>
+    <div class="info-cards">
+        {% if feedbacks %}
+            {% for feedback in feedbacks %}
+                <div class="card" style="background: #9de4ea; color: #333; text-shadow: none; border-left: 5px solid var(--primary-color);">
+                    {% set parts = feedback.split('\n') %}
+                    <p style="font-style: italic; color: #555;">"{{ parts[1].replace('Review:', '').strip() }}"</p>
+                    <h4 style="margin-top:10px; color: var(--secondary-color);">- {{ parts[0].replace('Name:', '').strip() }}</h4>
+                </div>
+            {% endfor %}
+        {% else %}
+            {% for quote in quotes %}
+                <div class="card" style="background: linear-gradient(135deg, #70cfb8, #007bff);">
+                     <p style="font-size: 1.1rem; font-weight: bold;">{{ quote }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</section>
+
+<section class="container info-section">
+    <h2>Why Heart Health Matters</h2>
+    <p>Cardiovascular diseases are the leading cause of death globally. Our tool uses a trained machine learning model to analyze health metrics and estimate potential risk.</p>
+    <div class="info-cards">
+        <div class="card risk">
+            <h3>Understand Your Risk</h3>
+            <p>Input your health data manually or upload a medical report to get an AI-powered risk assessment.</p>
+        </div>
+        <div class="card prevention">
+            <h3>Proactive Prevention</h3>
+            <p>Learn about the lifestyle changes and preventative measures you can take for a healthier heart.</p>
+        </div>
+        <div class="card decisions">
+            <h3>Informed Decisions</h3>
+            <p>Use our analysis as a starting point for a more informed discussion with your healthcare provider.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
