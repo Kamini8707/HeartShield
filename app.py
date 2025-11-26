@@ -15,6 +15,10 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 # --- App Initialization ---
 app = Flask(__name__)
 app.secret_key = 'heartshield_super_secret_key' 
@@ -23,7 +27,17 @@ app.secret_key = 'heartshield_super_secret_key'
 # !! IMPORTANT: Update 'root:password' with your actual MySQL credentials !!
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:PASSWORD@localhost/heartshield_db'
 # local dev: use SQLite file DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://kamini:1234@localhost/heartshield_db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://kamini:1234@localhost/heartshield_db'
+
+
+
+db_user = os.getenv("DB_USER")
+db_pass = os.getenv("DB_PASS")
+db_host = os.getenv("DB_HOST")
+db_name = os.getenv("DB_NAME")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}"
+
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
