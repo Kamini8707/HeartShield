@@ -129,62 +129,20 @@ HeartShield/
 └── temp_files/
     └── (temporary OCR images, auto-cleaned)
 ```
-⭐ 4. Installation & Setup
+# ⭐ 4. Installation & Setup
 
-Follow these simple steps to run HeartShield on your local machine.
+Follow these simple steps to run **HeartShield** on your local machine.
 
-🔹 4.1 Clone the Repository
+---
+
+## 🔹 4.1 Clone the Repository
+
+```bash
 git clone https://github.com/<your-username>/HeartShield.git
 cd HeartShield
+```
 
-🔹 4.2 Create & Activate Virtual Environment
+## 🔹 4.2 Create & Activate Virtual Environment
 🪟 Windows
 python -m venv venv
 venv\Scripts\activate
-
-🐧 Linux / macOS
-python3 -m venv venv
-source venv/bin/activate
-
-🔹 4.3 Install Dependencies
-pip install -r requirements.txt
-
-🔹 4.4 Set Up MySQL Database & User
-
-Open MySQL Workbench and run the following SQL scripts 👇
-
-🗄️ Create Database
-CREATE DATABASE IF NOT EXISTS heartshield;
-
-👤 Create User
-CREATE USER IF NOT EXISTS 'heartshield_user'@'localhost'
-IDENTIFIED BY 'hs1234';
-
-🔑 Grant Permissions
-GRANT ALL PRIVILEGES ON heartshield.*
-TO 'heartshield_user'@'localhost';
-FLUSH PRIVILEGES;
-
-
-Now your database is ready! 🎉
-
-🔹 4.5 Configure Database URI in app.py
-
-Open app.py and update this line:
-
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    'mysql+pymysql://heartshield_user:hs1234@localhost/heartshield'
-)
-
-
-✔️ Make sure your MySQL server is running.
-
-🔹 4.6 Run the Application
-python app.py
-
-
-The server will start at:
-
-🌐 http://127.0.0.1:5000
-
-You can now visit the website in your browser 🎉❤️
