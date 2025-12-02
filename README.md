@@ -1,119 +1,120 @@
-# HeartShield
-❤️ HeartShield – Intelligent Heart Disease Prediction System
+# HeartShield – Heart Disease Prediction Web App
 
-HeartShield is an AI-powered Flask web application that predicts the risk of heart disease using medical parameters.
-It supports login, profile management, OCR-based medical report extraction, duplicate prevention, and personal analysis history.
+HeartShield is a Flask-based web application that predicts the risk of heart disease using an XGBoost machine-learning model.  
+Users can create an account, manage their profile, upload medical reports (PDF / image) for OCR extraction, and view their past prediction history.
 
-⭐ Features
-🔐 User Authentication
+---
 
-User registration & login
+## 1. Features
 
-Password encryption (Werkzeug)
+### 1.1 User & Profile
 
-Profile management (name, age, height, weight, blood group)
+- User registration and login (Flask-Login)
+- Secure password hashing (Werkzeug)
+- Profile fields: name, age, gender, height, weight, blood group
+- Upload profile picture  
+- If no picture is uploaded, the navbar shows the **first letter** of the username as a fallback avatar (handled in templates/CSS)
 
-Upload profile photo OR auto-generate initial avatar
+### 1.2 Heart Disease Prediction
 
-🤖 AI Prediction
+- Uses a trained **XGBoost** model (`best_xgboost_model.pkl`)
+- Inputs:
+  - Age, Gender, Height, Weight
+  - Systolic BP (`ap_hi`)
+  - Diastolic BP (`ap_lo`)
+  - Cholesterol
+  - Glucose
+  - Smoking, Alcohol, Physical Activity
+- Outputs:
+  - Binary prediction (0 – low risk, 1 – high risk)
+  - Probability score in percentage
 
-XGBoost ML model (best_xgboost_model.pkl)
+### 1.3 Clinical Safety Net
 
-Predicts heart disease risk (0/1)
+Before using the ML model, HeartShield applies rule-based checks:
 
-Probability score (%)
+- Very high blood pressure (e.g., `ap_hi > 180` or `ap_lo > 120`)
+- Very high glucose (`glucose > 220`)
+- Very high cholesterol (`cholesterol > 300`)
+- Morbid obesity (BMI > 40)
 
-Clinical safety checks override AI for extreme conditions
+If any of these are triggered, the app forces a **high-risk** prediction with a high probability, even if the model disagrees.
 
-Duplicate prevention: prevents back-to-back identical entries
+### 1.4 OCR-Based Extraction from Reports
 
-🩺 Medical Data Extraction (OCR)
+- Upload **PDF or image** of a medical report
+- Uses:
+  - **Tesseract OCR**
+  - **Poppler** (`pdf2image`)
+  - **OpenCV** for preprocessing
+- Extracts values like:
+  - Age, Height, Weight
+  - BP (systolic / diastolic, including `120/80` pattern)
+  - Cholesterol, Glucose
+  - Lifestyle flags: Smoke, Alcohol, Active (Yes/No)
 
-Upload PDF or image medical reports
+### 1.5 Analysis History
 
-Extracts:
+- Every prediction (for a logged-in user) is stored in the `analysis` table
+- Profile page shows the **last 5 analyses**
+- Duplicate protection:
+  - If the same user submits the **exact same inputs** within a few seconds, a new row is **not** inserted.  
+    Instead, the previous prediction is reused.
 
-Age
+---
 
-Height
+## 2. Tech Stack
 
-Weight
+### Backend
 
-Blood pressure (systolic/diastolic)
+- Python
+- Flask
+- Flask-SQLAlchemy
+- Flask-Login
+- PyMySQL
 
-Cholesterol
+### Machine Learning
 
-Glucose
+- XGBoost
+- pandas
+- NumPy
+- joblib
 
-Smoking / Alcohol / Activity
+### OCR & Image Processing
 
-Uses Tesseract OCR + Poppler + OpenCV
+- Tesseract OCR
+- Poppler (`pdf2image`)
+- OpenCV
 
-📊 User Dashboard
+### Frontend
 
-View last 5 predictions
+- HTML
+- CSS
+- JavaScript
+- Jinja2 templates
 
-Update profile & picture
+---
 
-Auto-fill analyser page with saved profile info
+## 3. Project Structure
 
-🗃️ MySQL Database
-
-Tables:
-
-user
-
-analysis
-
-🛠️ Tech Stack
-Backend
-
-Python
-
-Flask (auth + routing)
-
-Flask-SQLAlchemy
-
-Flask-Login
-
-PyMySQL
-
-Machine Learning
-
-XGBoost
-
-Pandas / NumPy
-
-Joblib
-
-OCR
-
-Tesseract
-
-Poppler
-
-OpenCV
-
-Frontend
-
-HTML
-CSS
-JavaScript
-
-📂 Project Structure
+```text
 HeartShield/
-│── app.py
-│── best_xgboost_model.pkl
-│── requirements.txt
-│── feedback.txt
-│── README.md
+│
+├── app.py
+├── best_xgboost_model.pkl
+├── requirements.txt
+├── feedback.txt
+├── README.md
 │
 ├── static/
-│   ├── css/style.css
-│   ├── js/script.js
-│   ├── profile_pics/
-│   └── images/
-│       └── heartshield-logo.jpg
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── script.js
+│   ├── images/
+│   │   └── heartshield-logo.jpg
+│   └── profile_pics/
+│       └── (uploaded profile images)
 │
 ├── templates/
 │   ├── base.html
@@ -126,69 +127,7 @@ HeartShield/
 │   └── about.html
 │
 └── temp_files/
-
-⚙️ Installation & Setup
-1️⃣ Clone the project
-git clone https://github.com/yourusername/HeartShield.git
-cd HeartShield
-2️⃣ Create virtual environment
-python -m venv venv
-
-
-Activate:
-
-venv\Scripts\activate  (Windows)
-
-3️⃣ Install dependencies
-pip install -r requirements.txt
-
-4️⃣ Setup MySQL Database
-
-Login to MySQL Workbench and run:
-
-CREATE DATABASE IF NOT EXISTS heartshield;
-
-CREATE USER IF NOT EXISTS 'heartshield_user'@'localhost' IDENTIFIED BY 'hs1234';
-
-GRANT ALL PRIVILEGES ON heartshield.* TO 'heartshield_user'@'localhost';
-FLUSH PRIVILEGES;
-
-5️⃣ Update Database URI in app.py
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-"mysql+pymysql://heartshield_user:hs1234@localhost/heartshield"
-
-6️⃣ Run the app
-python app.py
-
-
-App will run at:
-📌 http://127.0.0.1:5000
-
-🧪 Prediction Flow
-
-User enters medical data manually
-
-OR uploads PDF/image
-
-OCR extracts data
-
-Model predicts
-
-Clinical checks override extreme cases
-
-Result saved into history 
-
-🤝 Contributing
-
-Pull requests are welcome!
-For major changes, please open an issue first.
-
-📜 License
-
-This project is for educational purposes.
-Free to use and modify.
-
-💙 Author
-
-Kamini Prajapati
-HeartShield – Taking Care of Your Heart with AI ❤️
+    └── (temporary OCR images, auto-cleaned)
+```
+4. Installation & Setup
+4.1 Clone the project
