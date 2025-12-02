@@ -95,7 +95,7 @@ If any of these are triggered, the app forces a **high-risk** prediction with a 
 
 ---
 
-## 3. Project Structure
+## 📂 3. Project Structure
 
 ```text
 HeartShield/
