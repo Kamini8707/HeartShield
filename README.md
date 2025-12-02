@@ -131,3 +131,112 @@ HeartShield/
 ```
 4. Installation & Setup
 4.1 Clone the project
+git clone https://github.com/<your-username>/HeartShield.git
+cd HeartShield
+
+4.2 Create and activate virtual environment
+python -m venv venv
+
+
+On Windows:
+
+venv\Scripts\activate
+
+
+(Use source venv/bin/activate on Linux/macOS.)
+
+4.3 Install dependencies
+pip install -r requirements.txt
+
+4.4 Set up MySQL database and user
+
+Open MySQL Workbench and run:
+
+CREATE DATABASE IF NOT EXISTS heartshield;
+
+CREATE USER IF NOT EXISTS 'heartshield_user'@'localhost'
+IDENTIFIED BY 'hs1234';
+
+GRANT ALL PRIVILEGES ON heartshield.* TO 'heartshield_user'@'localhost';
+FLUSH PRIVILEGES;
+
+4.5 Configure database URI in app.py
+
+In app.py:
+
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    'mysql+pymysql://heartshield_user:hs1234@localhost/heartshield'
+)
+
+4.6 Create tables and run the app
+python app.py
+
+
+The app will start at:
+
+http://127.0.0.1:5000
+
+5. Usage Guide
+
+Register a new account.
+
+Login using your email and password.
+
+Optionally update your profile and upload a profile picture.
+
+Go to Analyser:
+
+Fill in the required medical details, or
+
+Use Upload Report to extract values via OCR.
+
+Click Predict to see:
+
+Heart disease risk (0/1)
+
+Probability in %
+
+Check your recent analyses in the Profile page.
+
+6. Screenshots (placeholders)
+
+You can add actual images in a screenshots/ folder and reference them here:
+
+![Home Page](screenshots/home.png)
+![Analyser Page](screenshots/analyser.png)
+![Profile Page](screenshots/profile.png)
+![Prediction Result](screenshots/result.png)
+
+7. Future Improvements
+
+Doctor / admin panel
+
+Downloadable PDF health report
+
+Email alerts for high-risk predictions
+
+Multi-language OCR support
+
+Deployment on cloud (Render / Railway / AWS)
+
+8. Contributing
+
+Fork the repository
+
+Create a new branch: git checkout -b feature-name
+
+Commit your changes: git commit -m "Add feature"
+
+Push to the branch: git push origin feature-name
+
+Open a Pull Request
+
+9. License
+
+This project is intended for educational and demonstration purposes.
+It does not provide a medical diagnosis. Always consult a doctor for medical decisions.
+
+10. Author
+
+Kamini Prajapati
+HeartShield – Using AI to support early heart disease risk awareness.
