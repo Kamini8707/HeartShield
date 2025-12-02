@@ -144,5 +144,64 @@ cd HeartShield
 
 ## 🔹 4.2 Create & Activate Virtual Environment
 🪟 Windows
+```bash
 python -m venv venv
 venv\Scripts\activate
+```
+🐧 Linux / macOS
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+##🔹 4.3 Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+##🔹 4.4 Set Up MySQL Database & User
+```bash
+Open MySQL Workbench and run the following SQL commands:
+```
+
+🗄️ Create Database
+```bash
+CREATE DATABASE IF NOT EXISTS heartshield;
+```
+
+👤 Create User
+```bash
+CREATE USER IF NOT EXISTS 'heartshield_user'@'localhost'
+IDENTIFIED BY 'hs1234';
+```
+
+🔑 Grant Permissions
+
+```bash
+GRANT ALL PRIVILEGES ON heartshield.*
+TO 'heartshield_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+##🔹 4.5 Configure Database URI in app.py
+
+Update this line:
+```bash
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    'mysql+pymysql://heartshield_user:hs1234@localhost/heartshield'
+)
+```
+
+
+✔️ Ensure MySQL Server is running (port 3306).
+
+🔹 4.6 Run the Application
+```bash
+python app.py
+```
+
+
+The server will start at:
+
+🌐 http://127.0.0.1:5000
+
+Visit in your browser to use the app 🎉❤️
