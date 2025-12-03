@@ -25,8 +25,21 @@
                     
                     <li class="dropdown">
                         <a href="#" class="dropbtn">
-                            <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_pic) }}" 
-                                 class="nav-profile-pic"> {{ current_user.username }} ▼
+
+                            {# Avatar: image if uploaded, else initial #}
+                            {% if current_user.profile_pic 
+                                  and current_user.profile_pic != 'default.jpg' %}
+                                <img src="{{ url_for('static',
+                                                     filename='profile_pics/' ~ current_user.profile_pic) }}"
+                                     class="nav-profile-pic"
+                                     alt="Profile">
+                            {% else %}
+                                <div class="nav-profile-pic nav-profile-initial">
+                                    {{ (current_user.name or current_user.username)[0] | upper }}
+                                </div>
+                            {% endif %}
+
+                            {{ current_user.username }} ▼
                         </a>
                         <div class="dropdown-content">
                             <a href="{{ url_for('profile') }}">Edit Profile & History</a>
@@ -46,7 +59,9 @@
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="status-message status-{{ category }}" style="text-align: center;">{{ message }}</div>
+                        <div class="status-message status-{{ category }}" style="text-align: center;">
+                            {{ message }}
+                        </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
