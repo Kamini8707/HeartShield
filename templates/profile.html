@@ -9,8 +9,28 @@
     
     <div class="card">
         <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
-            <img id="profile-preview" src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" 
-                 style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); background-color: #f0f0f0;">
+
+            {# Show uploaded profile photo if available, else first-letter avatar #}
+            {% if user.profile_pic and user.profile_pic != 'default.jpg' %}
+                <!-- Uploaded profile picture -->
+                <img id="profile-preview"
+                     src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}"
+                     style="width: 100px; height: 100px; border-radius: 50%;
+                            object-fit: cover; border: 3px solid var(--primary-color);
+                            background-color: #f0f0f0;">
+            {% else %}
+                <!-- First-letter avatar -->
+                <div id="profile-preview"
+                     style="width: 100px; height: 100px; border-radius: 50%;
+                            background:#007bff; color:#ffffff;
+                            display:flex; align-items:center; justify-content:center;
+                            font-size:40px; font-weight:700;
+                            border:3px solid var(--primary-color);
+                            box-shadow:0 0 8px rgba(0,0,0,0.08);">
+                    {{ (user.username or user.email or 'U')[0]|upper }}
+                </div>
+            {% endif %}
+
             <div>
                 <h2 style="margin: 0;">Hello, {{ user.username }}</h2>
                 <p style="color: #666;">Manage your details and history.</p>
@@ -28,31 +48,56 @@
             </div>
 
             <div class="form-grid">
-                <div class="form-group"><label>Name</label><input type="text" name="name" value="{{ user.name }}"></div>
-                <div class="form-group"><label>Age</label><input type="number" name="age" value="{{ user.age }}"></div>
-                <div class="form-group"><label>Gender</label>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" value="{{ user.name }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" name="age" value="{{ user.age }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
                     <select name="gender">
                         <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
                         <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Height (cm)</label><input type="number" name="height" value="{{ user.height | int }}"></div>
-                <div class="form-group"><label>Weight (kg)</label><input type="number" step="0.1" name="weight" value="{{ user.weight }}"></div>
-                <div class="form-group"><label>Blood Group</label>
+
+                <div class="form-group">
+                    <label>Height (cm)</label>
+                    <input type="number" name="height" value="{{ user.height | int }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" step="0.1" name="weight" value="{{ user.weight }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Blood Group</label>
                     <select name="blood_group">
                         <option value="{{ user.blood_group }}">{{ user.blood_group }} (Current)</option>
-                        <option value="A+">A+</option><option value="B+">B+</option><option value="O+">O+</option>
-                        <option value="AB+">AB+</option><option value="A-">A-</option><option value="B-">B-</option>
-                        <option value="O-">O-</option><option value="AB-">AB-</option>
+                        <option value="A+">A+</option>
+                        <option value="B+">B+</option>
+                        <option value="O+">O+</option>
+                        <option value="AB+">AB+</option>
+                        <option value="A-">A-</option>
+                        <option value="B-">B-</option>
+                        <option value="O-">O-</option>
+                        <option value="AB-">AB-</option>
                     </select>
                 </div>
             </div>
+
             <button type="submit" class="cta-button large" style="margin-top: 20px;">Save Changes</button>
         </form>
     </div>
 
     <div class="card">
-        <h3 style="color: rgb(9, 9, 9)";>Recent Prediction History (Last 5)</h3>
+        <h3 style="color: rgb(9, 9, 9);">Recent Prediction History (Last 5)</h3>
         {% if history %}
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
@@ -65,10 +110,18 @@
                 </tr>
                 {% for rec in history %}
                 <tr style="border-bottom: 1px solid #eee; color:black;">
-                    <td style="padding: 10px; color:black;">{{ rec.date_posted.strftime('%Y-%m-%d') }} </td>
-                    <td style="padding: 10px;">{{ rec.height | int }}cm / {{ rec.weight | round(1) }}kg</td>
-                    <td style="padding: 10px;">{{ rec.ap_hi }}/{{ rec.ap_lo }}</td>
-                    <td style="padding: 10px;">{{ rec.cholesterol }} / {{ rec.glucose }}</td>
+                    <td style="padding: 10px; color:black;">
+                        {{ rec.date_posted.strftime('%Y-%m-%d') }}
+                    </td>
+                    <td style="padding: 10px;">
+                        {{ rec.height | int }}cm / {{ rec.weight | round(1) }}kg
+                    </td>
+                    <td style="padding: 10px;">
+                        {{ rec.ap_hi }}/{{ rec.ap_lo }}
+                    </td>
+                    <td style="padding: 10px;">
+                        {{ rec.cholesterol }} / {{ rec.glucose }}
+                    </td>
                     <td style="padding: 10px; font-weight: bold;">
                         {% if rec.prediction == 1 %}
                             <span style="color: #dc3545;">High Risk</span>
@@ -94,8 +147,9 @@
         </div>
         <div style="display:flex; justify-content:end; gap:10px; margin-top:10px;">
             <button type="button" id="cancel-crop-btn" class="cta-button secondary" style="background:#dc3545;">Cancel</button>
-            <button type="button" id="crop-save-btn" class="cta-button">Crop & Save</button>
+            <button type="button" id="crop-save-btn" class="cta-button">Crop &amp; Save</button>
         </div>
     </div>
 </div>
+
 {% endblock %}
