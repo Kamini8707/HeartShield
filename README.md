@@ -156,6 +156,8 @@ source venv/bin/activate
 ##🔹 4.3 Install Dependencies
 ```bash
 pip install -r requirements.txt
+pip install cryptography
+
 ```
 
 ##🔹 4.4 Set Up MySQL Database & User
